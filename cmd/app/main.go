@@ -89,7 +89,26 @@ func main() {
 						return
 					}
 				case "where":
-					if _, _, err := api.PostMessage(event.Channel, slack.MsgOptionText(event.Channel, false)); err != nil {
+					channelInfo, err := api.GetChannelInfo(event.Channel)
+					if err != nil {
+						raiseError(w, err)
+						return
+					}
+					if _, _, err := api.PostMessage(event.Channel, slack.MsgOptionText(channelInfo.Name, false)); err != nil {
+						raiseError(w, err)
+						return
+					}
+				case "channels":
+					var channels string
+					channelList, err := api.GetChannels(false)
+					if err != nil {
+						raiseError(w, err)
+						return
+					}
+					for i := 0; i < len(channelList); i++ {
+						channels += "#" + channelList[i].Name + " / "
+					}
+					if _, _, err := api.PostMessage(event.Channel, slack.MsgOptionText(channels, false)); err != nil {
 						raiseError(w, err)
 						return
 					}
